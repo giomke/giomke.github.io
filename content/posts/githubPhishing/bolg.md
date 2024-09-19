@@ -39,6 +39,12 @@ editPost:
 This morning, I received a phishing notification disguised as a GitHub alert. In this short blog post, I want to share the techniques the attackers used and explain why it can be difficult to recognize such phishing attempts.
 
 ## Email
+![image](.email.png)
+![image](./email.png)
+![image](../email.png)
+![image](../../email.png)
+![image](/githubPhishing/email.png)
+![image](githubPhishing/email.png)
+![image](.githubPhishing/email.png)
 
-{{ $image := .Resources.Get "email.png" }}
 
