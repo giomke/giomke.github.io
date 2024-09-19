@@ -51,3 +51,10 @@ First of all, I am subscribed to the smgorelik/Windows-RCE-exploits repository, 
 The main part of the email, the URL github-scanner[.]com, seems quite real. However, before clicking, I decided to check it.
 
 > Please, everyone, do not click on everything. Zero-day vulnerabilities are real, and you should be especially careful if you are a power user!
+
+## URL
+Firstly, I decided to check the domain and performed a WHOIS query. After that, I was fairly certain it was phishing, as the domain information contained several red flags indicating it was a malicious URL.
+In the image below, you can see the creation time of the domain, which was very recent. This was a key indicator for me that it was a malicious domain. Additionally, the registrant country was Malaysia.
+
+![image](/posts/githubPhishing/domain.png)
+
