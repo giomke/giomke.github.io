@@ -41,4 +41,13 @@ This morning, I received a phishing notification disguised as a GitHub alert. In
 ## Email
 ![image](/posts/githubPhishing/email.png)
 
+In the image above, the first thing that caught my eye was the random name **u7Fbclark**, which made me stop before clicking the URL. Firstly, I checked the SPF and DKIM records to ensure that the email was coming from GitHub, and it was indeed from them.
+In the image below, you can see that both SPF and DKIM checks passed.
 
+![image](/posts/githubPhishing/dikim.png)
+
+The context of the email seemed perfectly normal for the following reasons.
+First of all, I am subscribed to the smgorelik/Windows-RCE-exploits repository, which is legitimate and familiar to me. Secondly, there are known vulnerabilities in the repository, making it normal for GitHub to trigger alerts.
+The main part of the email, the URL github-scanner[.]com, seems quite real. However, before clicking, I decided to check it.
+
+> Please, everyone, do not click on everything. Zero-day vulnerabilities are real, and you should be especially careful if you are a power user!
