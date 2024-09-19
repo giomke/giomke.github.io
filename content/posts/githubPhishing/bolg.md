@@ -39,5 +39,6 @@ editPost:
 This morning, I received a phishing notification disguised as a GitHub alert. In this short blog post, I want to share the techniques the attackers used and explain why it can be difficult to recognize such phishing attempts.
 
 ## Email
+![image](/posts/githubPhishing/email.png)
 
-![image](email.png)
+
