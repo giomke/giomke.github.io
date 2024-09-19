@@ -40,4 +40,4 @@ This morning, I received a phishing notification disguised as a GitHub alert. In
 
 ## Email
 
-![image](email.png)
+![image](/githubPhishing/email.png)
