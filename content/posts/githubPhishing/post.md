@@ -35,7 +35,7 @@ editPost:
     Text: "Suggest Changes" # edit text
     appendFilePath: true # to append file path to Edit link
 ---
-# Introduction
+## Introduction
 This morning, I received a phishing notification disguised as a GitHub alert. In this short blog post, I want to share the techniques the attackers used and explain why it can be difficult to recognize such phishing attempts.
 
 ## Email
@@ -77,7 +77,7 @@ As I read, adversaries leverage OAuth app authorization to gain access to your G
 
 ![image](/posts/githubPhishing/chain3.png)
 
-# Conclusion
+## Conclusion
 It becomes offent of abousing github notications so be cautious and periodically review your [authorized OAuth apps](https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/reviewing-your-authorized-oauth-apps).
 
 ![image](/posts/githubPhishing/oauth.png)
