@@ -58,3 +58,10 @@ In the image below, you can see the creation time of the domain, which was very 
 
 ![image](/posts/githubPhishing/domain.png)
 
+I was curious about what the website looked like, so I used https://urlscan.io/. The first page I encountered was a CAPTCHA. Advanced attackers cleverly use CAPTCHAs to evade detection by security tools and bypass mechanisms like mail security gateways.
+
+![image](/posts/githubPhishing/web.png)
+
+Of course, I finally checked on VirusTotal, and it was already flagged as malicious. **During my analysis in the morning, there was much less detection coverage.**
+
+![image](/posts/githubPhishing/virustotal.png)
