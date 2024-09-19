@@ -40,4 +40,5 @@ This morning, I received a phishing notification disguised as a GitHub alert. In
 
 ## Email
 
-![image](/githubPhishing/email.png)
+{{ $image := .Resources.Get "email.png" }}
+
