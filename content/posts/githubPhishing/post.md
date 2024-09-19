@@ -69,10 +69,15 @@ Of course, I finally checked on VirusTotal, and it was already flagged as malici
 ## The kill chain
 I mentioned in the issue how I received the notification along with the adversary's comment. Unfortunately, the GitHub issue was removed, and I do not have a screenshot.
 
-![image](chain1.png)
+![image](/posts/githubPhishing/chain1.png)
 
 As I read, adversaries leverage OAuth app authorization to gain access to your GitHub account. The attacker attempts to gain privileges on your GitHub account by exploiting the OAuth mechanism, which allows external applications to access resources on behalf of the user. While this approach is useful for integrating external systems with applications, it can be quite dangerous if the external system is not trusted, as is the case here.
 
-![image](chain2.png)
+![image](/posts/githubPhishing/chain2.png)
 
-![image](chain3.png)
+![image](/posts/githubPhishing/chain3.png)
+
+# Conclusion
+It becomes offent of abousing github notications so be cautious and periodically review your [authorized OAuth apps](https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/reviewing-your-authorized-oauth-apps).
+
+![image](/posts/githubPhishing/oauth.png)
