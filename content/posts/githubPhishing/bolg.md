@@ -65,3 +65,14 @@ I was curious about what the website looked like, so I used https://urlscan.io/.
 Of course, I finally checked on VirusTotal, and it was already flagged as malicious. **During my analysis in the morning, there was much less detection coverage.**
 
 ![image](/posts/githubPhishing/virustotal.png)
+
+## The kill chain
+I mentioned in the issue how I received the notification along with the adversary's comment. Unfortunately, the GitHub issue was removed, and I do not have a screenshot.
+
+![image](chain1.png)
+
+As I read, adversaries leverage OAuth app authorization to gain access to your GitHub account. The attacker attempts to gain privileges on your GitHub account by exploiting the OAuth mechanism, which allows external applications to access resources on behalf of the user. While this approach is useful for integrating external systems with applications, it can be quite dangerous if the external system is not trusted, as is the case here.
+
+![image](chain2.png)
+
+![image](chain3.png)
