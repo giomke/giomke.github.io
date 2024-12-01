@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>AWS security baseline architecture | Giomke&#39;s blog</title>
+<meta name="keywords" content="AWS, architecture, SRA">
+<meta name="description" content="giomke personal blog">
+<meta name="author" content="giomke">
+<link rel="canonical" href="http://localhost:1313/posts/sra/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.d6fcd20a4fb86efa4dfac8ec95da60244cc8871042183da1ef28e3a762ad79c8.css" integrity="sha256-1vzSCk&#43;4bvpN&#43;sjsldpgJEzIhxBCGD2h7yjjp2Ktecg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/sra/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><meta property="og:url" content="http://localhost:1313/posts/sra/">
+  <meta property="og:site_name" content="Giomke&#39;s blog">
+  <meta property="og:title" content="AWS security baseline architecture">
+  <meta property="og:description" content="giomke personal blog">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-07-02T11:30:03+00:00">
+    <meta property="article:modified_time" content="2024-07-02T11:30:03+00:00">
+    <meta property="article:tag" content="AWS">
+    <meta property="article:tag" content="Architecture">
+    <meta property="article:tag" content="SRA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AWS security baseline architecture">
+<meta name="twitter:description" content="giomke personal blog">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "AWS security baseline architecture",
+      "item": "http://localhost:1313/posts/sra/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "AWS security baseline architecture",
+  "name": "AWS security baseline architecture",
+  "description": "giomke personal blog",
+  "keywords": [
+    "AWS", "architecture", "SRA"
+  ],
+  "articleBody": "AWS security baseline architecture Introduction Hi there in this blog post, we will talk about AWS cloud security architecture from a thousand-foot View. This blog post is meant for absolute beginners in the cloud security journey. We will discuss how we can achieve perfect isolation of resources and collaboration with each other by following best practices and recommended guides.\nAWS offers numerous security-related resources, including posts, whitepapers, and guides, as well as two major frameworks: the Cloud Adoption Framework (CAF) and the Well-Architected Framework. However, the abundance of information can make AWS security seem complex and confusing for beginners like myself, and possibly like you. It’s likely that AWS developed the AWS Security Reference Architecture (AWS SRA) in response to this confusion. As its name suggests, the SRA organizes best practices, whitepapers, and guidelines into a cohesive framework, making them easier to follow and implement. According to Amazon, the SRA provides a holistic set of guidelines for deploying AWS security services in a multi-account environment. Before diving into the details of the SRA, let’s first understand why a multi-account strategy is necessary and why prioritizing security services matters.\nMulti-account strategy the best way to achieve isolation Frankly speaking, you can achieve your goals with one AWS account but the question arises why do we need multiple accounts, and why does even AWS recommend us to follow a multi-account strategy? It has a couple of answers but let’s talk from a security perspective. As security professionals, we prioritize isolating resources for security reasons. It’s likely you’ve already grasped the concept that the most effective way to isolate AWS resources and minimize the ‘blast radius’ is by leveraging multiple accounts.\nFor example, let’s consider a scenario where we have two accounts: one for development resources and another for production resources, instead of having just one account. In the event of an incident, suppose an EC2 machine is compromised in the DEV account due to weaker security measures compared to the PROD account. In the worst-case scenario, the attacker abuse the AWS metadata service located at 169.254.169.254. Leveraging the permissions set to the compromised EC2 instance, the attacker manages to create a new user in AWS IAM and assigns the admin role to this user. They then log out from the compromised EC2 instance and log in to the AWS console as an admin with full permissions.\nHowever, with a multi-account strategy in place, the attacker still wouldn’t have access to the PROD account, where our most critical assets are stored. This underscores the importance of account-level isolation because even in the event of a full compromise, the adversary would still not have access to other accounts, theoretically. It’s important to note that the effectiveness of this strategy depends on how the environment is configured, but as of now, it stands as the optimal choice for isolating resources. To simplify, remember that each AWS account acts as a distinct repository for AWS resources and serves no other purpose.\nOrganizing multiple accounts and managing them efficiently was indeed a challenging task until the introduction of the AWS Organizations service. This service, which is free to use, has streamlined the process of managing multiple AWS accounts effectively. In the next section, we’ll delve deeper into the features and benefits of AWS Organizations and how it simplifies the management of multi-account architectures.\nGrouping and managing multi-account organization IT professionals like to group assets because it makes management and governance easier. That’s why AWS recommends having users in user groups and attaching security policies to a group instead of directly to users. It is similar in accounts; we need to have the opportunity to group them logically and apply policies. To achieve our goals, AWS offers a service named AWS Organizations, which we can use, and it’s free, by the way. AWS Organizations is an account management service that enables you to consolidate multiple AWS accounts into an organization that you create and centrally manage. AWS Organizations includes account management and consolidated billing capabilities that enable you to better meet the budgetary, security, and compliance needs of your business. As an administrator of an organization, you can create accounts in your organization and invite existing accounts to join the organization.\nRegardless of numerous recommendations on how to organize your accounts and structure your organization, the question still arises in some situations. In the following sections, I will provide you with a blueprint from the SRA, but remember, the core mindset is resource-based grouping. For example, as mentioned before, the account is a box of resources, and with the help of AWS Organizations OUs, we have to group the same resource boxes, in this case, the same resource-based accounts. You will achieve a cleaner architecture when you group based on the same resource accounts instead of grouping them based on users, teams, or your company structure. When you group based on the same resource account, you can deploy more robust and effective Service Control Policies (SCPs). Service Control Policies (SCPs) are a type of organizational policy that you can use to manage permissions in your organization. SCPs offer central control over the maximum available permissions for the IAM users and IAM roles in your organization. SCPs help you ensure your accounts stay within your organization’s access control guidelines.\nManaging the AWS Organization service can be tedious because it requires manual effort in many areas. For this reason, AWS offers a service named AWS Control Tower, which utilizes services like AWS Organizations, AWS IAM Identity Center, AWS Config, and perhaps more that I don’t remember right now. AWS Control Tower provides a straightforward way to set up and govern an AWS multi-account environment, following prescriptive best practices. Resources are set up and managed on your behalf. I recommend using this service at the beginning of your cloud journey because it establishes a basic security landing zone where you can align with the following guidelines of security architecture.\nOrganization Units AWS Organizations is a service that helps you centrally manage and govern your AWS environment. It enables you to centrally manage and govern multiple AWS accounts. Within AWS Organizations, you can organize these accounts into organizational units (OUs). By structuring your AWS accounts into organizational units, you can more effectively manage your resources, control access to services and resources, and apply policies consistently across multiple accounts. This helps improve security, compliance, and cost management within your AWS environment.\nFirst four account for your secure landing zone A Secure Landing Zone (SLZ) is a foundational environment in AWS that is designed with security best practices in mind. It serves as a secure and compliant starting point for hosting applications and workloads in the cloud. My recomendation is to have at least four account in the begining: Org Management account, Security Tooling account, Network account and Application account.\nDescriptions for the following accounts come from The AWS Security Reference Architecture. For more in-depth information, please visit The AWS Security Reference Architecture documentation.\nThe management account, trusted access, and delegated administrators The management account (also called the AWS Organization Management account or Org Management account) is unique and differentiated from every other account in AWS Organizations. It is the account that creates the AWS organization. From this account, you can create AWS accounts in the AWS organization, invite other existing accounts to the AWS organization (both types are considered member accounts), remove accounts from the AWS organization, and apply IAM policies to the root, OUs, or accounts within the AWS organization.\nThe management account deploys universal security guardrails through SCPs and service deployments (such as AWS CloudTrail) that will affect all member accounts in the AWS organization. To further restrict permissions in the management account, those permissions can be delegated to another appropriate account, such as a security account, where possible.\nThe management account has the responsibilities of a payer account and is responsible for paying all charges that are accrued by the member accounts. You cannot switch an AWS organization’s management account. An AWS account can be a member of only one AWS organization at a time.\nBecause of the functionality and scope of influence the management account holds, we recommend that you limit access to this account and grant permissions only to roles that need them. Two features that help you do this are trusted access and delegated administrator. You can use trusted access to enable an AWS service that you specify, called the trusted service, to perform tasks in your AWS organization and its accounts on your behalf. This involves granting permissions to the trusted service but does not otherwise affect the permissions for IAM entities. You can use trusted access to specify settings and configuration details that you would like the trusted service to maintain in your AWS organization’s accounts on your behalf.\nSome AWS services support the delegated administrator feature in AWS Organizations. With this feature, compatible services can register an AWS member account in the AWS organization as an administrator for the AWS organization’s accounts in that service. This capability provides flexibility for different teams within your enterprise to use separate accounts, as appropriate for their responsibilities, to manage AWS services across the environment. The AWS security services in the AWS SRA that currently support delegated administrator include AWS IAM Identity Center (successor to AWS Single Sign-On), AWS Config, AWS Firewall Manager, Amazon GuardDuty, AWS IAM Access Analyzer, Amazon Macie, AWS Security Hub, Amazon Detective, AWS Audit Manager, Amazon Inspector, and AWS Systems Manager. Use of the delegated administrator feature is emphasized in the AWS SRA as a best practice, and we delegate administration of security-related services to the Security Tooling account.\nSecurity Tooling account In the context of AWS services, this account is used to provide centralized delegated admin access to AWS security tooling and consoles, as well as provide view-only access for investigative purposes into all accounts in the organization. The security tooling account should be restricted to authorized security and compliance personnel and related security. This account is an aggregation point (or points for organizations that split the functionality across multiple accounts) for AWS security services, including AWS Security Hub, Amazon GuardDuty, Amazon Macie, AWS AppConfig, AWS Firewall Manager, Amazon Detective, Amazon Inspector, and IAM Access Analyzer.\nThe Security Tooling account is dedicated to operating security services, monitoring AWS accounts, and automating security alerting and response. The security objectives include the following:\nProvide a dedicated account with controlled access to manage access to the security guardrails, monitoring, and response. Maintain the appropriate centralized security infrastructure to monitor security operations data and maintain traceability. Detection, investigation, and response are essential parts of the security lifecycle and can be used to support a quality process, a legal or compliance obligation, and for threat identification and response efforts. Further support a defense-in-depth organization strategy by maintaining another layer of control over appropriate security configuration and operations such as encryption keys and security group settings. This is an account where security operators work. Read-only/audit roles to view AWS organization-wide information are typical, whereas write/modify roles are limited in number, tightly controlled, monitored, and logged. Network account The Network account serves as the central hub for your network within your AWS Organization. You can manage your networking resources and route traffic between accounts in your environment, your on-premises, and egress/ingress traffic to the internet. Within this account, your network administrators can manage and build security measures to protect network traffic across your cloud environment.\nThe Network account manages the gateway between your application and the broader internet. It is important to protect that two-way interface. The Network account isolates the networking services, configuration, and operation from the individual application workloads, security, and other infrastructure. This arrangement not only limits connectivity, permissions, and data flow, but also supports separation of duties and least privilege for the teams that need to operate in these accounts. By splitting network flow into separate inbound and outbound virtual private clouds (VPCs), you can protect sensitive infrastructure and traffic from undesired access. The inbound network is generally considered higher risk and deserves appropriate routing, monitoring, and potential issue mitigations. These infrastructure accounts will inherit permission guardrails from the Org Management account and the Infrastructure OU. Networking (and security) teams manage the majority of the infrastructure in this account.\nApplication account The Application account hosts the primary infrastructure and services to run and maintain an enterprise application. The Application account and Workloads OU serve a few primary security objectives. First, you create a separate account for each application to provide boundaries and controls between workloads so that you can avoid issues of comingling roles, permissions, data, and encryption keys. You want to provide a separate account container where the application team can be given broad rights to manage their own infrastructure without affecting others. Next, you add a layer of protection by providing a mechanism for the security operations team to monitor and collect security data. Employ an organization trail and local deployments of account security services (Amazon GuardDuty, AWS Config, AWS Security Hub, Amazon EventBridge, AWS IAM Access Analyzer), which are configured and monitored by the security team. Finally, you enable your enterprise to set controls centrally. You align the application account to the broader security structure by making it a member of the Workloads OU through which it inherits appropriate service permissions, constraints, and guardrails.\nSecurity OU, Infrastructure OU, Workloads OU In this chapter, let’s group the previously described accounts. I will show which organization unit each account belongs to (management account does not need OU).\nSecurity OU The Security OU is a foundational OU. Your security organization should own and manage this OU along with any child OUs and associated accounts. You create Security Tooling account in the Security OU. A default deployment of AWS Control Tower will create a Log Archive and Audit (also referred to as Security Tooling) accounts.\nInfrastructure OU The Infrastructure OU is a foundational OU that is intended to contain infrastructure services. The accounts in this OU are also considered administrative and your infrastructure and operations teams should own and manage this OU, any child OUs, and associated accounts. The Infrastructure OU is used to hold AWS accounts containing AWS infrastructure resources that are shared, utilized by, or used to manage accounts in the organization. This includes centralized operations or monitoring of your organization. No application accounts or application workloads are intended to exist within this OU. Common use cases for this OU include accounts to centralize management of resources. For example, a Network account might be used to centralize your AWS network, or an Operations Tooling account to centralize your operational tooling. You create Network account in the Infrastructure OU.\nIn most cases, given the way most AWS Organization integrated services interact with the accounts within the Infrastructure OU, it does not generally make sense to have production and non-production variants of these accounts within the Infrastructure OU. In situations where non-production accounts are required, these workloads should be treated like any other application and placed in an account within the appropriate Workloads OU corresponding with the non-production phase of the SDLC (Dev OU or Test OU).\nWorkloads OU The Workloads OU is intended to house most of your business-specific workloads including both production and non-production environments. These workloads can be a mix of commercial off-the-shelf (COTS) applications and your own internally developed custom applications and data services. Workloads in this OU often include shared application and data services that are used by other workloads. You create Application account in the Workloads OU.\nConclusion In conclusion, understanding AWS cloud security architecture is crucial for ensuring the protection of resources and data in the cloud environment. This blog post has provided a beginner-friendly overview, introducing key concepts such as the AWS Security Reference Architecture (AWS SRA), multi-account strategy, and the role of AWS Organizations in managing accounts efficiently.\nBy emphasizing the importance of resource isolation and collaboration through best practices, the post highlights the significance of structuring AWS accounts logically and deploying robust security measures. The recommended Secure Landing Zone (SLZ) framework, consisting of Org Management, Security Tooling, Network, and Application accounts, serves as a foundational setup for building a secure AWS environment.\nFurthermore, the concept of organizational units (OUs) within AWS Organizations offers a structured approach to account management, allowing for consistent application of security policies across multiple accounts.\nOverall, this post provides a foundational understanding of AWS cloud security architecture, laying the groundwork for beginners to navigate and implement security best practices effectively in their AWS environments. With a solid understanding of these principles, users can embark on their cloud security journey with confidence, knowing they have the tools and knowledge to protect their assets in the cloud effectively.\nReferences AWS Security Reference Architecture Organizing Your AWS Environment Using Multiple Accounts AWS Security Reference Architecture: Visualize your security - Mohamed Wali - NDC Security 2024 AWS re:Inforce 2023 - Plan and deploy your own security architecture based on the AWS SRA (GRC307) AWS re:Invent 2022 - Revitalize your security with the AWS Security Reference Architecture (SEC203) AWS re:Invent 2021 - AWS Security Reference Architecture: Visualize your security AWS re:Invent 2018: Architecting Security \u0026 Governance across your AWS Landing Zone (SEC303-R1) ",
+  "wordCount" : "2864",
+  "inLanguage": "en",
+  "datePublished": "2024-07-02T11:30:03Z",
+  "dateModified": "2024-07-02T11:30:03Z",
+  "author":{
+    "@type": "Person",
+    "name": "giomke"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/sra/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Giomke's blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class=" dark" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Giomke&#39;s blog (Alt + H)">Giomke&#39;s blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      AWS security baseline architecture
+    </h1>
+    <div class="post-description">
+      giomke personal blog
+    </div>
+    <div class="post-meta"><span title='2024-07-02 11:30:03 +0000 UTC'>July 2, 2024</span>&nbsp;·&nbsp;14 min&nbsp;·&nbsp;giomke&nbsp;|&nbsp;<a href="https://github.com/giomke/giomke.github.io/tree/main/content/posts/sra/index.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#aws-security-baseline-architecture" aria-label="AWS security baseline architecture">AWS security baseline architecture</a><ul>
+                        
+                <li>
+                    <a href="#introduction" aria-label="Introduction">Introduction</a></li>
+                <li>
+                    <a href="#multi-account-strategy-the-best-way-to-achieve-isolation" aria-label="Multi-account strategy the best way to achieve isolation">Multi-account strategy the best way to achieve isolation</a></li>
+                <li>
+                    <a href="#grouping-and-managing-multi-account-organization" aria-label="Grouping and managing multi-account organization">Grouping and managing multi-account organization</a></li>
+                <li>
+                    <a href="#organization-units" aria-label="Organization Units">Organization Units</a><ul>
+                        
+                <li>
+                    <a href="#first-four-account-for-your-secure-landing-zone" aria-label="First four account for your secure landing zone">First four account for your secure landing zone</a><ul>
+                        
+                <li>
+                    <a href="#the-management-account-trusted-access-and-delegated-administrators" aria-label="The management account, trusted access, and delegated administrators">The management account, trusted access, and delegated administrators</a></li>
+                <li>
+                    <a href="#security-tooling-account" aria-label="Security Tooling account">Security Tooling account</a></li>
+                <li>
+                    <a href="#network-account" aria-label="Network account">Network account</a></li>
+                <li>
+                    <a href="#application-account" aria-label="Application account">Application account</a></li></ul>
+                </li>
+                <li>
+                    <a href="#security-ou-infrastructure-ou-workloads-ou" aria-label="Security OU, Infrastructure OU, Workloads OU">Security OU, Infrastructure OU, Workloads OU</a><ul>
+                        
+                <li>
+                    <a href="#security-ou" aria-label="Security OU">Security OU</a></li>
+                <li>
+                    <a href="#infrastructure-ou" aria-label="Infrastructure OU">Infrastructure OU</a></li>
+                <li>
+                    <a href="#workloads-ou" aria-label="Workloads OU">Workloads OU</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#conclusion" aria-label="Conclusion">Conclusion</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="aws-security-baseline-architecture">AWS security baseline architecture<a hidden class="anchor" aria-hidden="true" href="#aws-security-baseline-architecture">#</a></h1>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/1.png"></p>
+<h2 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h2>
+<p>Hi there in this blog post, we will talk about AWS cloud security architecture from a thousand-foot View. This blog post is meant for absolute beginners in the cloud security journey. We will discuss how we can achieve perfect isolation of resources and collaboration with each other by following best practices and recommended guides.</p>
+<p>AWS offers numerous security-related resources, including posts, whitepapers, and guides, as well as two major frameworks: the Cloud Adoption Framework (CAF) and the Well-Architected Framework.
+However, the abundance of information can make AWS security seem complex and confusing for beginners like myself, and possibly like you. It&rsquo;s likely that AWS developed the AWS Security Reference Architecture (AWS SRA) in response to this confusion. As its name suggests, the SRA organizes best practices, whitepapers, and guidelines into a cohesive framework, making them easier to follow and implement. According to Amazon, the SRA provides a holistic set of guidelines for deploying AWS security services in a multi-account environment. Before diving into the details of the SRA, let&rsquo;s first understand why a multi-account strategy is necessary and why prioritizing security services matters.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/2.png"></p>
+<h2 id="multi-account-strategy-the-best-way-to-achieve-isolation">Multi-account strategy the best way to achieve isolation<a hidden class="anchor" aria-hidden="true" href="#multi-account-strategy-the-best-way-to-achieve-isolation">#</a></h2>
+<p>Frankly speaking, you can achieve your goals with one AWS account but the question arises why do we need multiple accounts, and why does even AWS recommend us to follow a multi-account strategy? It has a couple of answers but let&rsquo;s talk from a security perspective.
+As security professionals, we prioritize isolating resources for security reasons. It&rsquo;s likely you&rsquo;ve already grasped the concept that the most effective way to isolate AWS resources and minimize the &lsquo;blast radius&rsquo; is by leveraging multiple accounts.</p>
+<p><img alt="recommended-ous" loading="lazy" src="/posts/sra/images/3.png"></p>
+<p>For example, let&rsquo;s consider a scenario where we have two accounts: one for development resources and another for production resources, instead of having just one account. In the event of an incident, suppose an EC2 machine is compromised in the DEV account due to weaker security measures compared to the PROD account. In the worst-case scenario, the attacker abuse the AWS metadata service located at 169.254.169.254. Leveraging the permissions set to the compromised EC2 instance, the attacker manages to create a new user in AWS IAM and assigns the admin role to this user. They then log out from the compromised EC2 instance and log in to the AWS console as an admin with full permissions.</p>
+<p><img alt="metadata server attack" loading="lazy" src="/posts/sra/images/4.gif"></p>
+<p>However, with a multi-account strategy in place, the attacker still wouldn&rsquo;t have access to the PROD account, where our most critical assets are stored. This underscores the importance of account-level isolation because even in the event of a full compromise, the adversary would still not have access to other accounts, theoretically. It&rsquo;s important to note that the effectiveness of this strategy depends on how the environment is configured, but as of now, it stands as the optimal choice for isolating resources. To simplify, remember that each AWS account acts as a distinct repository for AWS resources and serves no other purpose.</p>
+<p>Organizing multiple accounts and managing them efficiently was indeed a challenging task until the introduction of the AWS Organizations service. This service, which is free to use, has streamlined the process of managing multiple AWS accounts effectively. In the next section, we&rsquo;ll delve deeper into the features and benefits of AWS Organizations and how it simplifies the management of multi-account architectures.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/5.png"></p>
+<h2 id="grouping-and-managing-multi-account-organization">Grouping and managing multi-account organization<a hidden class="anchor" aria-hidden="true" href="#grouping-and-managing-multi-account-organization">#</a></h2>
+<p>IT professionals like to group assets because it makes management and governance easier. That&rsquo;s why AWS recommends having users in user groups and attaching security policies to a group instead of directly to users. It is similar in accounts; we need to have the opportunity to group them logically and apply policies. To achieve our goals, AWS offers a service named AWS Organizations, which we can use, and it&rsquo;s free, by the way. AWS Organizations is an account management service that enables you to consolidate multiple AWS accounts into an organization that you create and centrally manage. AWS Organizations includes account management and consolidated billing capabilities that enable you to better meet the budgetary, security, and compliance needs of your business. As an administrator of an organization, you can create accounts in your organization and invite existing accounts to join the organization.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/6.png"></p>
+<p>Regardless of numerous recommendations on how to organize your accounts and structure your organization, the question still arises in some situations. In the following sections, I will provide you with a blueprint from the SRA, but remember, the core mindset is resource-based grouping. For example, as mentioned before, the account is a box of resources, and with the help of AWS Organizations OUs, we have to group the same resource boxes, in this case, the same resource-based accounts. You will achieve a cleaner architecture when you group based on the same resource accounts instead of grouping them based on users, teams, or your company structure. When you group based on the same resource account, you can deploy more robust and effective Service Control Policies (SCPs). Service Control Policies (SCPs) are a type of organizational policy that you can use to manage permissions in your organization. SCPs offer central control over the maximum available permissions for the IAM users and IAM roles in your organization. SCPs help you ensure your accounts stay within your organization’s access control guidelines.</p>
+<p>Managing the AWS Organization service can be tedious because it requires manual effort in many areas. For this reason, AWS offers a service named AWS Control Tower, which utilizes services like AWS Organizations, AWS IAM Identity Center, AWS Config, and perhaps more that I don&rsquo;t remember right now. AWS Control Tower provides a straightforward way to set up and govern an AWS multi-account environment, following prescriptive best practices. Resources are set up and managed on your behalf. I recommend using this service at the beginning of your cloud journey because it establishes a basic security landing zone where you can align with the following guidelines of security architecture.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/7.png"></p>
+<h2 id="organization-units">Organization Units<a hidden class="anchor" aria-hidden="true" href="#organization-units">#</a></h2>
+<p>AWS Organizations is a service that helps you centrally manage and govern your AWS environment. It enables you to centrally manage and govern multiple AWS accounts. Within AWS Organizations, you can organize these accounts into organizational units (OUs).
+By structuring your AWS accounts into organizational units, you can more effectively manage your resources, control access to services and resources, and apply policies consistently across multiple accounts. This helps improve security, compliance, and cost management within your AWS environment.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/8.png"></p>
+<h3 id="first-four-account-for-your-secure-landing-zone">First four account for your secure landing zone<a hidden class="anchor" aria-hidden="true" href="#first-four-account-for-your-secure-landing-zone">#</a></h3>
+<p>A Secure Landing Zone (SLZ) is a foundational environment in AWS that is designed with security best practices in mind. It serves as a secure and compliant starting point for hosting applications and workloads in the cloud.
+My recomendation is to have at least four account in the begining: Org Management account, Security Tooling account, Network account and Application account.</p>
+<blockquote>
+<p><a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/architecture.html">Descriptions for the following accounts come from The AWS Security Reference Architecture. For more in-depth information, please visit The AWS Security Reference Architecture documentation.</a></p>
+</blockquote>
+<h4 id="the-management-account-trusted-access-and-delegated-administrators">The management account, trusted access, and delegated administrators<a hidden class="anchor" aria-hidden="true" href="#the-management-account-trusted-access-and-delegated-administrators">#</a></h4>
+<p>The management account (also called the AWS Organization Management account or Org Management account) is unique and differentiated from every other account in AWS Organizations. It is the account that creates the AWS organization. From this account, you can create AWS accounts in the AWS organization, invite other existing accounts to the AWS organization (both types are considered member accounts), remove accounts from the AWS organization, and apply IAM policies to the root, OUs, or accounts within the AWS organization.</p>
+<p>The management account deploys universal security guardrails through SCPs and service deployments (such as AWS CloudTrail) that will affect all member accounts in the AWS organization. To further restrict permissions in the management account, those permissions can be delegated to another appropriate account, such as a security account, where possible.</p>
+<p>The management account has the responsibilities of a payer account and is responsible for paying all charges that are accrued by the member accounts. You cannot switch an AWS organization&rsquo;s management account. An AWS account can be a member of only one AWS organization at a time.</p>
+<p>Because of the functionality and scope of influence the management account holds, we recommend that you limit access to this account and grant permissions only to roles that need them. Two features that help you do this are trusted access and delegated administrator. You can use trusted access to enable an AWS service that you specify, called the trusted service, to perform tasks in your AWS organization and its accounts on your behalf. This involves granting permissions to the trusted service but does not otherwise affect the permissions for IAM entities. You can use trusted access to specify settings and configuration details that you would like the trusted service to maintain in your AWS organization&rsquo;s accounts on your behalf.</p>
+<p>Some AWS services support the delegated administrator feature in AWS Organizations. With this feature, compatible services can register an AWS member account in the AWS organization as an administrator for the AWS organization&rsquo;s accounts in that service. This capability provides flexibility for different teams within your enterprise to use separate accounts, as appropriate for their responsibilities, to manage AWS services across the environment. The AWS security services in the AWS SRA that currently support delegated administrator include AWS IAM Identity Center (successor to AWS Single Sign-On), AWS Config, AWS Firewall Manager, Amazon GuardDuty, AWS IAM Access Analyzer, Amazon Macie, AWS Security Hub, Amazon Detective, AWS Audit Manager, Amazon Inspector, and AWS Systems Manager. Use of the delegated administrator feature is emphasized in the AWS SRA as a best practice, and we delegate administration of security-related services to the Security Tooling account.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/9.png"></p>
+<h4 id="security-tooling-account">Security Tooling account<a hidden class="anchor" aria-hidden="true" href="#security-tooling-account">#</a></h4>
+<p>In the context of AWS services, this account is used to provide centralized delegated admin access to AWS security tooling and consoles, as well as provide view-only access for investigative purposes into all accounts in the organization. The security tooling account should be restricted to authorized security and compliance personnel and related security. This account is an aggregation point (or points for organizations that split the functionality across multiple accounts) for AWS security services, including AWS Security Hub, Amazon GuardDuty, Amazon Macie, AWS AppConfig, AWS Firewall Manager, Amazon Detective, Amazon Inspector, and IAM Access Analyzer.</p>
+<p>The Security Tooling account is dedicated to operating security services, monitoring AWS accounts, and automating security alerting and response. The security objectives include the following:</p>
+<ul>
+<li>Provide a dedicated account with controlled access to manage access to the security guardrails, monitoring, and response.</li>
+<li>Maintain the appropriate centralized security infrastructure to monitor security operations data and maintain traceability. Detection, investigation, and response are essential parts of the security lifecycle and can be used to support a quality process, a legal or compliance obligation, and for threat identification and response efforts.</li>
+<li>Further support a defense-in-depth organization strategy by maintaining another layer of control over appropriate security configuration and operations such as encryption keys and security group settings. This is an account where security operators work. Read-only/audit roles to view AWS organization-wide information are typical, whereas write/modify roles are limited in number, tightly controlled, monitored, and logged.</li>
+</ul>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/10.png"></p>
+<h4 id="network-account">Network account<a hidden class="anchor" aria-hidden="true" href="#network-account">#</a></h4>
+<p>The Network account serves as the central hub for your network within your AWS Organization. You can manage your networking resources and route traffic between accounts in your environment, your on-premises, and egress/ingress traffic to the internet. Within this account, your network administrators can manage and build security measures to protect network traffic across your cloud environment.</p>
+<p>The Network account manages the gateway between your application and the broader internet. It is important to protect that two-way interface. The Network account isolates the networking services, configuration, and operation from the individual application workloads, security, and other infrastructure. This arrangement not only limits connectivity, permissions, and data flow, but also supports separation of duties and least privilege for the teams that need to operate in these accounts. By splitting network flow into separate inbound and outbound virtual private clouds (VPCs), you can protect sensitive infrastructure and traffic from undesired access. The inbound network is generally considered higher risk and deserves appropriate routing, monitoring, and potential issue mitigations. These infrastructure accounts will inherit permission guardrails from the Org Management account and the Infrastructure OU. Networking (and security) teams manage the majority of the infrastructure in this account.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/11.png"></p>
+<h4 id="application-account">Application account<a hidden class="anchor" aria-hidden="true" href="#application-account">#</a></h4>
+<p>The Application account hosts the primary infrastructure and services to run and maintain an enterprise application. The Application account and Workloads OU serve a few primary security objectives. First, you create a separate account for each application to provide boundaries and controls between workloads so that you can avoid issues of comingling roles, permissions, data, and encryption keys. You want to provide a separate account container where the application team can be given broad rights to manage their own infrastructure without affecting others. Next, you add a layer of protection by providing a mechanism for the security operations team to monitor and collect security data. Employ an organization trail and local deployments of account security services (Amazon GuardDuty, AWS Config, AWS Security Hub, Amazon EventBridge, AWS IAM Access Analyzer), which are configured and monitored by the security team. Finally, you enable your enterprise to set controls centrally. You align the application account to the broader security structure by making it a member of the Workloads OU through which it inherits appropriate service permissions, constraints, and guardrails.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/12.png"></p>
+<h3 id="security-ou-infrastructure-ou-workloads-ou">Security OU, Infrastructure OU, Workloads OU<a hidden class="anchor" aria-hidden="true" href="#security-ou-infrastructure-ou-workloads-ou">#</a></h3>
+<p>In this chapter, let&rsquo;s group the previously described accounts. I will show which organization unit each account belongs to (management account does not need OU).</p>
+<h4 id="security-ou">Security OU<a hidden class="anchor" aria-hidden="true" href="#security-ou">#</a></h4>
+<p>The Security OU is a foundational OU. Your security organization should own and manage this OU along with any child OUs and associated accounts. You create Security Tooling account in the Security OU. A default deployment of AWS Control Tower will create a Log Archive and Audit (also referred to as Security Tooling) accounts.</p>
+<h4 id="infrastructure-ou">Infrastructure OU<a hidden class="anchor" aria-hidden="true" href="#infrastructure-ou">#</a></h4>
+<p>The Infrastructure OU is a foundational OU that is intended to contain infrastructure services. The accounts in this OU are also considered administrative and your infrastructure and operations teams should own and manage this OU, any child OUs, and associated accounts. The Infrastructure OU is used to hold AWS accounts containing AWS infrastructure resources that are shared, utilized by, or used to manage accounts in the organization. This includes centralized operations or monitoring of your organization. No application accounts or application workloads are intended to exist within this OU. Common use cases for this OU include accounts to centralize management of resources. For example, a Network account might be used to centralize your AWS network, or an Operations Tooling account to centralize your operational tooling. You create Network account in the Infrastructure OU.</p>
+<p>In most cases, given the way most AWS Organization integrated services interact with the accounts within the Infrastructure OU, it does not generally make sense to have production and non-production variants of these accounts within the Infrastructure OU. In situations where non-production accounts are required, these workloads should be treated like any other application and placed in an account within the appropriate Workloads OU corresponding with the non-production phase of the SDLC (Dev OU or Test OU).</p>
+<h4 id="workloads-ou">Workloads OU<a hidden class="anchor" aria-hidden="true" href="#workloads-ou">#</a></h4>
+<p>The Workloads OU is intended to house most of your business-specific workloads including both production and non-production environments. These workloads can be a mix of commercial off-the-shelf (COTS) applications and your own internally developed custom applications and data services. Workloads in this OU often include shared application and data services that are used by other workloads. You create Application account in the Workloads OU.</p>
+<p><img alt="image" loading="lazy" src="/posts/sra/images/13.png"></p>
+<h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>In conclusion, understanding AWS cloud security architecture is crucial for ensuring the protection of resources and data in the cloud environment. This blog post has provided a beginner-friendly overview, introducing key concepts such as the AWS Security Reference Architecture (AWS SRA), multi-account strategy, and the role of AWS Organizations in managing accounts efficiently.</p>
+<p>By emphasizing the importance of resource isolation and collaboration through best practices, the post highlights the significance of structuring AWS accounts logically and deploying robust security measures. The recommended Secure Landing Zone (SLZ) framework, consisting of Org Management, Security Tooling, Network, and Application accounts, serves as a foundational setup for building a secure AWS environment.</p>
+<p>Furthermore, the concept of organizational units (OUs) within AWS Organizations offers a structured approach to account management, allowing for consistent application of security policies across multiple accounts.</p>
+<p>Overall, this post provides a foundational understanding of AWS cloud security architecture, laying the groundwork for beginners to navigate and implement security best practices effectively in their AWS environments. With a solid understanding of these principles, users can embark on their cloud security journey with confidence, knowing they have the tools and knowledge to protect their assets in the cloud effectively.</p>
+<h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+<ul>
+<li><a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/welcome.html">AWS Security Reference Architecture</a></li>
+<li><a href="https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/organizing-your-aws-environment.html">Organizing Your AWS Environment Using Multiple Accounts</a></li>
+<li><a href="https://www.youtube.com/watch?v=jGxS-7s-0sE">AWS Security Reference Architecture: Visualize your security - Mohamed Wali - NDC Security 2024</a></li>
+<li><a href="https://www.youtube.com/watch?v=ayvGswS72x4">AWS re:Inforce 2023 - Plan and deploy your own security architecture based on the AWS SRA (GRC307)</a></li>
+<li><a href="https://www.youtube.com/watch?v=uFrj0jHN848">AWS re:Invent 2022 - Revitalize your security with the AWS Security Reference Architecture (SEC203)</a></li>
+<li><a href="https://www.youtube.com/watch?v=-_LzB1uibAs">AWS re:Invent 2021 - AWS Security Reference Architecture: Visualize your security</a></li>
+<li><a href="https://www.youtube.com/watch?v=Fxkbz0OwPKk">AWS re:Invent 2018: Architecting Security &amp; Governance across your AWS Landing Zone (SEC303-R1)</a></li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/aws/">AWS</a></li>
+      <li><a href="http://localhost:1313/tags/architecture/">Architecture</a></li>
+      <li><a href="http://localhost:1313/tags/sra/">SRA</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Architecture on Giomke&#39;s blog</title>
+    <link>http://localhost:1313/tags/architecture/</link>
+    <description>Recent content in Architecture on Giomke&#39;s blog</description>
+    <generator>Hugo -- 0.139.2</generator>
+    <language>en</language>
+    <copyright>giomke</copyright>
+    <lastBuildDate>Tue, 02 Jul 2024 11:30:03 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/architecture/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AWS security baseline architecture</title>
+      <link>http://localhost:1313/posts/sra/</link>
+      <pubDate>Tue, 02 Jul 2024 11:30:03 +0000</pubDate>
+      <guid>http://localhost:1313/posts/sra/</guid>
+      <description>giomke personal blog</description>
+    </item>
+  </channel>
+</rss>
