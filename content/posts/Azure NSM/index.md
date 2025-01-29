@@ -1,6 +1,6 @@
 ---
 title: "Azure Network Security Monitoring"
-date: 2024-1-29T20:00:04+00:00
+date: 2025-1-29T20:00:04+00:00
 tags: ["Azure","KQL","Detection","Scan","log","flow","hunting","network","vnet","alert"]
 description: "detecting horizontal and vertical scans"
 ---
