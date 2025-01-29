@@ -1,6 +1,6 @@
 ---
 title: "Azure NSM"
-date: 2025-1-29T20:00:04+00:00
+date: 2025-01-29T15:23:04+00:00
 tags: ["Azure","KQL","Detection","Scan","log","flow","hunting","network","vnet","alert"]
 description: "Azure Network Security Monitoring - detecting horizontal and vertical scans"
 ---
