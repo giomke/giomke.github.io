@@ -151,6 +151,173 @@ Create a flow log for your virtual network, subnet, or network interface. This f
 6. Select Review + create.
 7. Review the settings, and then select Create.
 
+### Enable traffic analytics
+Enable traffic analytics for a flow log to analyze the flow log data. Traffic analytics provides insights into the traffic patterns of your virtual network. You can enable or disable traffic analytics for a flow log at any time.
+
+To enable traffic analytics for a flow log, follow these steps:
+
+1. In the search box at the top of the portal, enter network watcher. Select Network Watcher from the search results.
+2. Under Logs, select Flow logs.
+3. In Network Watcher | Flow logs, select the flow log that you want to enable traffic analytics for.
+4. In Flow logs settings, under Traffic analytics, check the Enable traffic analytics checkbox.
+
+![image](/images/11.png)
+
+5. Enter or select the following values:
+
+| Setting                  | Value                                                                                                                                                                                                  |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Subscription             | Select the Azure subscription of your Log Analytics workspace.                                                                                                                                         |
+| Log Analytics workspace  | Select your Log Analytics workspace. By default, Azure portal creates DefaultWorkspace-{SubscriptionID}-{Region} Log Analytics workspace in defaultresourcegroup-{Region} resource group.              |
+| Traffic logging interval | Select the processing interval that you prefer, available options are: Every 1 hour and Every 10 mins. The default processing interval is every one hour. For more information, see Traffic analytics. |
+
+![image](/images/12.png)
+
+6. Select Save to apply the changes.
+
+### List all flow logs
+You can list all flow logs in a subscription or a group of subscriptions. You can also list all flow logs in a region.
+
+1. In the search box at the top of the portal, enter network watcher. Select Network Watcher from the search results.
+2. Under Logs, select Flow logs.
+3. Select Subscription equals filter to choose one or more of your subscriptions. You can apply other filters like Location equals to list all the flow logs in a region.
+
+![image](/images/13.png)
+
+## Using virtual network flow logs
+![image](/images/14.png)
+
+To demonstrate some of the scenarios described above, Azure environment comprising a hub and spoke topology is used, with the hub containing a Firewall, Bastion, DNS Private Resolver, and connectivity to on-premises via ExpressRoute gateway. 
+Spoke1 has a sample application deployed on virtual machines with load balancers fronting each tier, and a private endpoint connected to an SQL Database for the DB tier. 
+Spoke2 has sample workloads to test spoke-to-spoke traffic. 
+Network Watcher virtual network flow logs and Traffic Analytics have been enabled on Hub virtual network.
+
+Virtual network flow logs allow optimization of log volume and simplification of management by enabling them at hub virtual network. 
+All traffic flowing through the hub, including spoke-to-spoke traffic is recorded on the hub virtual network. 
+In the topology of demo environment, traffic between the spokes is routed via hub firewall. 
+The example query below aggregates throughput between internal IP addresses for specified ranges. 
+An endpoint on Spoke2 (10.1.2.20) can be seen accessing another API endpoint on Spoke1(10.1.1.21) on port 8080, connecting to Web endpoint on Spoke1(10.1.1.4) via SSH and establishing DNS connectivity with Hub(10.1.0.8) on port 53.
+
+![image](/images/15.png)
+
+### KQL query examples
+Before I show you the KQL query for detecting horizontal and vertical scans, I want to share some KQL query examples from different blog posts that might be interesting to you.
+
+#### traffic to/from a virtual machine
+imagine you want to see with which IP addresses a given virtual machine has been talking to in the last few days
+
+```kql
+NTANetAnalytics
+| where TimeGenerated > ago(60d)
+| where SrcIp == "10.1.1.8" and strlen(DestIp)>0
+| summarize TotalBytes=sum(BytesDestToSrc+BytesSrcToDest) by SrcIp, DestIp
+```
+
+![image](/images/16.jpg)
+
+What if we want to enrich this information with the NTAIpDetails table to get the geolocation of the public IP addresses? Let's have a look:
+
+```kql
+NTANetAnalytics
+| where TimeGenerated > ago(60d)
+| where SrcIp == "10.1.1.8" and strlen(DestIp)>0
+| join kind = leftouter (NTAIpDetails) on $left.DestIp == $right.Ip
+| summarize TotalBytes=sum(BytesDestToSrc+BytesSrcToDest) by SrcIp, DestIp, PublicIpDetails, Location
+```
+
+![image](/images/17.jpg)
+
+packet host inc. looks suspicious, so now you might be interested in getting a time distribution on the protocols that have been going on there.
+We can see here that there have been two big data transfers of around 1GB in two different days, the last one on 23rd April.
+
+```kql
+NTANetAnalytics
+| where TimeGenerated > ago(60d)
+| where SrcIp == "10.1.1.8" and DestIp == "136.144.58.113"
+| join kind = leftouter (NTAIpDetails) on $left.DestIp == $right.Ip
+| extend App = strcat(L4Protocol,tostring(DestPort))
+| summarize TotalBytes=sum(BytesDestToSrc+BytesSrcToDest) by App, bin(TimeGenerated, 1d)
+| render columnchart
+```
+
+![image](/images/18.jpg)
+
+#### Top10 VMs based on the total data transferred
+The query below is an example of a KQL query to find the Top10 VMs based on the total data transferred in the last 3 days. 
+Note that the TotalBytes matches with the example above where the IP 10.10.0.5 had transferred 55GB to the 10.10.0.4 and another 55GB to the 10.10.0.132.
+
+```kql
+NTANetAnalytics
+| where TimeGenerated > ago(3d)
+| summarize TotalBytes=sum(BytesDestToSrc + BytesSrcToDest) by SrcVm
+| top 10 by TotalBytes
+| render columnchart
+```
+
+![image](/images/18.png)
+
+### Detecting Network scans
+
+In this section, I want to present a very simple yet powerful KQL rule that I developed to detect horizontal and vertical scans.
+
+In the post-exploitation phase of a attack, network scanning becomes an essential activity for attackers as they move laterally within a compromised network, aiming to discover additional vulnerable systems, escalate privileges, or deepen their control. Unlike the pre-exploitation phase, where the primary focus is on finding entry points, post-exploitation scans often involve more subtle, targeted actions. Attackers may engage in both horizontal and vertical scans to gather more information about the internal network and its vulnerabilities after breaching the initial system.
+Detecting network scanning during the post-exploitation phase is critically important because it can provide early warning signs of lateral movement and further compromise of systems. If attackers can be identified while scanning internal networks, they may be blocked before they can expand their reach or exfiltrate data. Signs of post-exploitation scans can include unexpected connections to multiple hosts, scanning activity on unused ports, and patterns indicating attempts to enumerate network shares, credentials, or service vulnerabilities. Monitoring tools, such as Intrusion Detection Systems (IDS), Security Information and Event Management (SIEM) solutions, and network traffic analysis, are key to identifying these scans. If detected early, defenders can isolate the attacker’s movement, close vulnerabilities, and mitigate damage, preventing a more widespread breach. Therefore, timely detection and response to scanning in the post-exploitation period are essential for containing attacks and minimizing the impact.
+
+#### Rule 1: Horizontal Scan Detection
+```kql
+NTANetAnalytics
+| where TimeGenerated > ago(24h)
+| where SubType == 'FlowLog'
+| where ipv4_is_private(SrcIp) and ipv4_is_private(DestIp)
+| where L4Protocol in ('TCP')
+| where toint(DestPort) < 10000
+| summarize unicDestIps = dcount(DestIp) by SrcIp, bin(FlowStartTime, 1m)
+| where unicDestIps > 6
+| sort by unicDestIps desc
+```
+- Purpose: This rule detects potential horizontal scans, where an attacker is scanning across multiple systems in a network. It focuses on identifying an unusually high number of unique destination IP addresses (which could represent different systems) being targeted from a single source IP.
+- Explanation:
+  - TimeWindow: The query focuses on logs from the last 24 hours (TimeGenerated > ago(24h)), which helps to narrow down scanning activity to a relevant time frame.
+  - SubType 'FlowLog': It filters for flow logs, typically representing network traffic data.
+  - Private IP Range: The condition ipv4_is_private(SrcIp) and ipv4_is_private(DestIp) ensures that only private IPs within the internal network are considered, helping to focus on internal scanning rather than public internet scanning.
+  - Protocol and Port Filtering: The filter L4Protocol in ('TCP') ensures the rule only looks at TCP traffic, which is common in port scanning. DestPort < 10000 limits the scope to lower numbered ports, which often contain critical or open services.
+  - Summarization: The summarize function calculates the count of unique destination IPs (unicDestIps) accessed by each source IP over 1-minute intervals. If a source IP connects to more than 6 unique destination IPs within that time window (unicDestIps > 6), this is flagged as suspicious activity, potentially indicating a horizontal scan.
+- What it Detects: This rule is looking for network traffic where a single source IP is connecting to multiple different devices or systems in a short amount of time, which could be indicative of an attacker scanning across the network to find accessible targets.
+
+#### Rule 2: Vertical Scan Detection
+```kql
+NTANetAnalytics
+| where TimeGenerated > ago(24h)
+| where SubType == 'FlowLog'
+| where ipv4_is_private(SrcIp) and ipv4_is_private(DestIp)
+| where L4Protocol in ('TCP')
+| where toint(DestPort) < 10000
+| summarize unicDestPort = dcount(DestPort) by SrcIp, DestIp, bin(FlowStartTime, 1m)
+| where unicDestPort > 3
+| sort by unicDestPort desc
+```
+- Purpose: This rule is designed to detect potential vertical scans, where an attacker is focusing on a specific system and probing multiple ports on that system to identify vulnerabilities.
+- Explanation
+  - TimeWindow: As with the first rule, this one focuses on flow logs from the last 24 hours (TimeGenerated > ago(24h)).
+  - SubType 'FlowLog': The query filters for flow logs, which contain network traffic data.
+  - Private IP Range: The rule restricts the analysis to private internal IPs (ipv4_is_private(SrcIp) and ipv4_is_private(DestIp)), ensuring that the scan activity is happening within the internal network.
+  - Protocol and Port Filtering: The rule examines only TCP traffic (L4Protocol in ('TCP')) and focuses on lower numbered ports (DestPort < 10000), again filtering for commonly used ports in network services.
+  - Summarization: Here, the summarize function counts how many unique destination ports (unicDestPort) a source IP accesses on a given destination IP over 1-minute intervals. If a source IP connects to more than 3 unique destination ports on a specific destination IP (unicDestPort > 3), this is flagged as suspicious, which may indicate that the source IP is scanning multiple ports on a single system.
+- What it Detects: This rule looks for behavior where an attacker is targeting a single system (specific DestIp) and probing multiple ports on that system. It can be indicative of vertical scanning, where an attacker is trying to exploit services running on various ports on a single device.
+
+In the post-exploitation phase, once an attacker has gained initial access, they often begin scanning the internal network to find more valuable systems, escalate privileges, or locate other points of entry. These two KQL rules help detect:
+
+1. Horizontal Scans: If an attacker is scanning across a range of systems (e.g., looking for vulnerable systems), the first rule can catch this behavior by detecting a source IP connecting to multiple different devices within a short time window.
+2. Vertical Scans: If an attacker is focusing on a single system and probing various ports to identify exploitable services (e.g., trying to find an open service to exploit), the second rule helps detect that activity by identifying a source IP scanning multiple ports on a single device.
+
+By detecting these scans early in the post-exploitation phase, defenders can identify lateral movement or potential escalation attempts before the attacker can cause significant harm, such as data exfiltration or further system compromise.
+
+## Create alert rule
+In this section, you will learn how to create a log search alert for an Azure resource. Once you verify your query, you can create the alert rule. Select New alert rule to create a new alert rule based on the current log query. The Scope is already set to the current resource. You don't need to change this value.
+
+
+
+
 
 
 
