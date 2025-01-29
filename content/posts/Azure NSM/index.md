@@ -254,7 +254,7 @@ NTANetAnalytics
 | render columnchart
 ```
 
-![image](/images/18.png)
+![image](/images/19.png)
 
 ### Detecting Network scans
 
@@ -314,6 +314,90 @@ By detecting these scans early in the post-exploitation phase, defenders can ide
 
 ## Create alert rule
 In this section, you will learn how to create a log search alert for an Azure resource. Once you verify your query, you can create the alert rule. Select New alert rule to create a new alert rule based on the current log query. The Scope is already set to the current resource. You don't need to change this value.
+
+![image](/images/20.png)
+
+### Configure condition
+On the Condition tab, the Log query is already filled in. The Measurement section defines how the records from the log query are measured. If the query doesn't perform a summary, then the only option is to Count the number of Table rows. If the query includes one or more summarized columns, then you have the option to use the number of Table rows or a calculation based on any of the summarized columns. Aggregation granularity defines the time interval over which the collected values are aggregated. For example, if the aggregation granularity is set to 5 minutes, the alert rule evaluates the data aggregated over the last 5 minutes. If the aggregation granularity is set to 15 minutes, the alert rule evaluates the data aggregated over the last 15 minutes. It is important to choose the right aggregation granularity for your alert rule, as it can affect the accuracy of the alert.
+
+> The combined size of all data in the log alert rule properties cannot exceed 64KB. This can be caused by too many dimensions, the query being too large, too many action groups, or a long description. When creating a large alert rule, remember to optimize these areas.
+
+![image](/images/21.png)
+
+### Configure dimensions
+
+Split by dimensions allows you to create separate alerts for different resources. This setting is useful when you're creating an alert rule that applies to multiple resources. With the scope set to a single resource, this setting typically isn't used.
+
+![image](/images/22.png)
+
+If you need certain dimensions included in the alert notification email, you can specify a dimension (for example, "Computer"), the alert notification email will include the computer name that triggered the alert. The alerting engine uses the alert query to determine the available dimensions. If you do not see the dimension you want in the drop-down list for the "Dimension name", it is because the alert query does not expose that column in the results. You can easily add the dimensions you want by adding a Project line to your query that includes the columns you want to use. You can also use the Summarize line to add more columns to the query results.
+
+![image](/images/23.png)
+
+### Configure alert logic
+In the alert logic, configure the Operator and Threshold value to compare to the value returned from the measurement. An alert is created when this value is true. Select a value for Frequency of evaluation which defines how often the log query is run and evaluated. The cost for the alert rule increases with a lower frequency. When you select a frequency, the estimated monthly cost is displayed in addition to a preview of the query results over a time period.
+
+For example, if the measurement is Table rows, the alert logic may be Greater than 0 indicating that at least one record was returned. If the measurement is a columns value, then the logic may need to be greater than or less than a particular threshold value. In the following example, the log query is looking for anonymous requests to a storage account. If an anonymous request is made, then we should trigger an alert. In this case, a single row returned would trigger the alert, so the alert logic should be Greater than 0.
+
+![image](/images/24.png)
+
+### Configure actions
+Action groups define a set of actions to take when an alert is fired such as sending an email or an SMS message.
+
+To configure actions, select the Actions tab.
+
+![image](/images/25.png)
+
+Click Select action groups to add one to the alert rule.
+
+![image](/images/26.png)
+
+If you don't already have an action group in your subscription to select, then click Create action group to create a new one.
+
+![image](/images/27.png)
+
+Select a Subscription and Resource group for the action group and give it an Action group name that will appear in the portal and a Display name that will appear in email and SMS notifications.
+
+![image](/images/28.png)
+
+Select the Notifications tab and add one or more methods to notify appropriate people when the alert is fired.
+
+![image](/images/29.png)
+
+### Configure details
+Select the Details tab and configure different settings for the alert rule.
+
+- Alert rule name which should be descriptive since it will be displayed when the alert is fired.
+- Optionally provide an Alert rule description that's included in the details of the alert.
+- Subscription and Resource group where the alert rule will be stored. This doesn't need to be in the same resource group as the resource that you're monitoring.
+- Severity for the alert. The severity allows you to group alerts with a similar relative importance. A severity of Error is appropriate for an unresponsive virtual machine.
+- Under Advanced options, keep the box checked to Enable upon creation.
+- Under Advanced options, keep the box checked to Automatically resolve alerts. This will make the alert stateful, which means that the alert is resolved when the condition isn't met anymore.
+
+![image](/images/30.png)
+
+Click Create alert rule to create the alert rule.
+
+### View the alert
+
+When an alert fires, it sends any notifications in its action groups. You can also view the alert in the Azure portal.
+
+Select Alerts from the resource's menu. If there are any open alerts for the resources, they are included in the view.
+
+![image](/images/31.png)
+
+Click on a severity to show the alerts with that severity. Select the User response and unselect Closed to view only open alerts.
+
+![image](/images/32.png)
+
+Click on the name of an alert to view its detail.
+
+![image](/images/32.png)
+
+
+## Conclusion:
+Detecting network scans—whether horizontal or vertical—is a fundamental aspect of securing your Azure environment. By leveraging Azure’s powerful features like VNet Flow Logs, Log Analytics, and custom KQL rules, you can proactively monitor network traffic and quickly identify potential security threats. Throughout this post, we’ve outlined the essential steps to configure flow logs, create and refine KQL queries, and set up alerting mechanisms to keep your environment secure. By implementing these recommendations, you'll be better prepared to protect your Azure resources and ensure the ongoing health and security of your cloud infrastructure. Start applying these insights today to detect and respond to suspicious network behavior faster and more effectively.
+
 
 
 
