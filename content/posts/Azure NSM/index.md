@@ -398,7 +398,17 @@ Click on the name of an alert to view its detail.
 ## Conclusion:
 Detecting network scans—whether horizontal or vertical—is a fundamental aspect of securing your Azure environment. By leveraging Azure’s powerful features like VNet Flow Logs, Log Analytics, and custom KQL rules, you can proactively monitor network traffic and quickly identify potential security threats. Throughout this post, we’ve outlined the essential steps to configure flow logs, create and refine KQL queries, and set up alerting mechanisms to keep your environment secure. By implementing these recommendations, you'll be better prepared to protect your Azure resources and ensure the ongoing health and security of your cloud infrastructure. Start applying these insights today to detect and respond to suspicious network behavior faster and more effectively.
 
-
+## References
+- [Tutorial: Create a log search alert for an Azure resource](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/tutorial-log-alert)
+- [Create, change, enable, disable, or delete virtual network flow logs using the Azure portal](https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-portal)
+- [Hub-and-spoke network topology](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/hub-spoke-network-topology)
+- [Hub-spoke network topology in Azure](https://learn.microsoft.com/en-us/azure/architecture/networking/architecture/hub-spoke?wt.mc_id=SecNinja_AzNetSecNinja&tabs=cli)
+- [Azure Network Security Ninja Training](https://techcommunity.microsoft.com/blog/azurenetworksecurityblog/azure-network-security-ninja-training/2356101)
+- [Network traffic observability with virtual network flow logs](https://techcommunity.microsoft.com/blog/azurenetworkingblog/network-traffic-observability-with-virtual-network-flow-logs/4112907)
+- [Virtual Network Flow Logs Recipes](https://techcommunity.microsoft.com/blog/fasttrackforazureblog/virtual-network-flow-logs-recipes/4134337)
+- [Monitoring traffic flows in Azure Firewall using Virtual Network Flow Logs](https://techcommunity.microsoft.com/blog/azurenetworksecurityblog/monitoring-traffic-flows-in-azure-firewall-using-virtual-network-flow-logs/4233245)
+- [Virtual Network Flow Logs and Encryption Overview](https://www.youtube.com/watch?v=JaAG_adPho0)
+- [Microsoft Azure Monitor - Alert Processing Rules](https://www.youtube.com/watch?v=cHH4RkL-9Dg)
 
 
 
