@@ -67,6 +67,8 @@ params:
       url: "https://www.linkedin.com/in/giorgi-mkervalishvili-3955b317b/"
     - name: github
       url: "https://github.com/giomke"
+    - name: youtube
+      url: "https://www.youtube.com/@giomke"
 
   editPost:
     URL: "https://github.com/giomke/giomke.github.io/tree/main/content"
