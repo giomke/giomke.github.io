@@ -119,3 +119,5 @@ You can also create Kubernetes Workload Identity Federation for cross-cluster id
 ![image](/img/oidc2.png)
 
 
+# Conclusion
+As you can see, we can easily achieve passwordless, seamless authentication for both humans and workloads. To do this, we need a centralized identity provider with strong authentication methods like FIDO for users and OIDC for workload authentication. In this setup, we no longer have to worry about credential rotations, password sprawl, or secret management. If you're not yet using FIDO2 and Workload Identity, now is the time to start.
