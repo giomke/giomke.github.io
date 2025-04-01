@@ -33,3 +33,71 @@ With the help of Trusted Platform Module (TPM), we can securely store our secret
 For personal use, for example, you can use Windows Hello to authenticate on Google (by registering a passkey) and then use Google as your Identity Provider for other sites—similar to the "Continue with Google" or "Sign in with your Google account" buttons on web login pages.
 
 For businesses, you can use Windows Hello for Business to authenticate with your Azure Entra ID and use federation to access resources outside of your Azure environment.
+# Authentication in the Cloud
+## AWS
+![image](/img/fido.png)
+
+Both IAM Identity Center and AWS IAM support FIDO2 for authentication, providing a more secure and phishing-resistant method you can use.
+**FIDO2** is a standard that includes **CTAP2** and **WebAuthn** and is based on public key cryptography. FIDO credentials are phishing-resistant because they are unique to the website that the credentials were created such as AWS.
+AWS supports the two most common form factors for FIDO authenticators: built-in authenticators and security keys.
+Many modern computers and mobile phones have **built-in authenticators**, such as TouchID on Macbook or a Windows Hello-compatible camera. 
+If your device has a FIDO-compatible built-in authenticator, you can use your fingerprint, face, or device pin as a second factor. 
+Security keys are FIDO-compatible **external hardware authenticators** that you can purchase and connect to your device through USB, BLE, or NFC. 
+When you’re prompted for MFA, you simply complete a gesture with the key’s sensor. 
+Some examples of security keys include YubiKeys and Feitian keys, and the most common security keys create device-bound FIDO credentials. 
+For a list of all FIDO-certified security keys, see FIDO Certified Products.
+
+For personal use, you can use AWS FIDO2 authentication, but for enterprise environments, the recommended approach is to rely on a centralized identity provider. AWS recommends **SEC02-BP04: Rely on a centralized identity provider**.
+
+Since you might already have Azure Entra ID, it’s a good choice for AWS authentication. You can integrate an external identity source by connecting your identity provider via **SAML 2.0** and automatically provisioning users and groups using **SCIM**. Alternatively, you can connect to your Microsoft AD Directory using AWS Directory Service.
+
+Once an identity source is configured, you can assign access to users and groups across AWS accounts by defining least-privilege policies in your permission sets. Your workforce users can then authenticate through your central identity provider to sign in to the AWS access portal and use **single sign-on (SSO)** for AWS accounts and cloud applications assigned to them.
+
+Additionally, users can configure **AWS CLI v2** to authenticate with Identity Center and obtain credentials to run AWS CLI commands. Identity Center also enables **SSO access** to AWS applications such as Amazon SageMaker AI Studio and AWS IoT SiteWise Monitor portals.
+
+## Azure
+Imagine a world where users never type, change, or even know their passwords. Yes, it’s possible!
+Users can sign in to Windows using Windows Hello for Business or FIDO2 security keys and seamlessly enjoy single sign-on (SSO) to Microsoft Entra ID and Active Directory resources.
+
+Windows Hello is an authentication technology that allows users to sign in to their Windows devices using biometric data, or a PIN, instead of a traditional password. It provides enhanced security through phish-resistant two-factor authentication, and built-in brute force protection. With FIDO/WebAuthn, Windows Hello can also be used to sign in to supported websites, reducing the need to remember multiple complex passwords.
+
+Likewise, we can authenticate to Microsoft Entra ID using a Microsoft Entra-joined device with Windows Hello for Business and use Microsoft Entra ID as a centralized identity provider to access resources outside our organization—for example, AWS resources.
+
+![image](/img/windowsHellowFlow.png)
+
+> All Microsoft Entra joined devices authenticate with Windows Hello for Business to Microsoft Entra ID the same way. The Windows Hello for Business trust type only impacts how the device authenticates to on-premises AD.
+
+| Phase | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+|:-----:|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| A     | Authentication begins when the user dismisses the lock screen, which triggers Winlogon to show the Windows Hello for Business credential provider. The user provides their Windows Hello gesture (PIN or biometrics). The credential provider packages these credentials and returns them to Winlogon. Winlogon passes the collected credentials to LSASS. LSASS passes the collected credentials to the Cloud Authentication security support provider, referred to as the Cloud AP provider. |
+| B     | The Cloud AP provider requests a nonce from Microsoft Entra ID. Microsoft Entra ID returns a nonce. The Cloud AP provider signs the nonce using the user's private key and returns the signed nonce to the Microsoft Entra ID.                                                                                                                                                                                                                                                                 |
+| C     | Microsoft Entra ID validates the signed nonce using the user's securely registered public key against the nonce signature. Microsoft Entra ID then validates the returned signed nonce, and creates a PRT with session key that is encrypted to the device's transport key and returns it to the Cloud AP provider.                                                                                                                                                                            |
+| D     | The Cloud AP provider receives the encrypted PRT with session key. Using the device's private transport key, the Cloud AP provider decrypt the session key and protects the session key using the device's TPM.                                                                                                                                                                                                                                                                                |
+| E     | The Cloud AP provider returns a successful authentication response to LSASS. LSASS caches the PRT, and informs Winlogon of the success authentication. Winlogon creates a logon session, loads the user's profile, and starts explorer.exe.                                                                                                                                                                                                                                                    |
+
+### Authenticate to AWS
+
+To allow centralized identity management and avoid having to manage multiple identities and passwords, most organizations want to use single sign-on for platform resources. Some AWS customers rely on server-based Microsoft Active Directory for SSO integration. Other customers invest in third-party solutions to synchronize or federate their identities and provide SSO.
+
+Microsoft Entra ID provides centralized identity management with strong SSO authentication. Almost any app or platform that follows common web authentication standards, including AWS, can use Microsoft Entra ID for identity and access management.
+
+Many organizations already use Microsoft Entra ID to assign and protect Microsoft 365 or hybrid cloud identities. Employees use their Microsoft Entra identities to access email, files, instant messaging, cloud applications, and on-premises resources. You can quickly and easily integrate Microsoft Entra ID with your AWS accounts to let administrators and developers sign in to your AWS environments with their existing identities.
+
+The following diagram shows how Microsoft Entra ID can integrate with multiple AWS accounts to provide centralized identity and access management:
+
+![image](/img/federation.png)
+
+Microsoft Entra ID offers several capabilities for direct integration with AWS:
+- SSO across legacy, traditional, and modern authentication solutions.
+- MFA, including integration with several third-party solutions from Microsoft Intelligent Security Association (MISA) partners.
+- Powerful Conditional Access features for strong authentication and strict governance. Microsoft Entra ID uses Conditional Access policies and risk-based assessments to authenticate and authorize user access to the AWS Management Console and AWS resources.
+- Large-scale threat detection and automated response. Microsoft Entra ID processes over 30 billion authentication requests per day, along with trillions of signals about threats worldwide.
+- Privileged Access Management (PAM) to enable Just-In-Time (JIT) provisioning to specific resources.
+
+We also have the capability for AWS Single-Account Access with Microsoft Entra ID. You can configure multiple identifiers for multiple instances.
+AWS Single-Account Access has been used by customers over the past several years and enables you to federate Microsoft Entra ID to a single AWS account and use Microsoft Entra ID to manage access to AWS IAM roles. AWS IAM administrators define roles and policies in each AWS account. For each AWS account, Microsoft Entra administrators federate to AWS IAM, assign users or groups to the account, and configure Microsoft Entra ID to send assertions that authorize role access.
+
+![image](/img/sso.png)
+
+
+
