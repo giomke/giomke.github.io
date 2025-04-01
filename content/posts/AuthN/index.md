@@ -99,5 +99,23 @@ AWS Single-Account Access has been used by customers over the past several years
 
 ![image](/img/sso.png)
 
+# Workload Identity Federation
+We will discuss a great project by [Puma Security called Nymeria](https://pumasecurity.github.io/nymeria/), which is a workshop with ready-made files where you can learn and test machine-to-machine communication using Federation, all while avoiding long-term credentials.
+
+Nymeria's goal is to help cloud identity and security teams to eliminate long-lived credentials from their cloud estate. The hands on workshop walks you through the following scenario:
+
+1. A GitHub Action needs to authenticate to an Entra ID Tenant to run a Terraform deployment.
+
+2. The Terraform deployment creates an Azure virtual machine that requires data stored in both AWS S3 and Google Cloud Storage (GCS).
+
+![image](/img/oidc.png)
+
+With the help of OIDC and SAML, we can authenticate workloads without the need for passwords or access keys. Workload Identity Federation is a cloud-native feature that allows authentication to public cloud APIs, helping us avoid the management of long-lived credentials and the associated complexities of securing them.
+
+One important note to mention: Azure and GCP are OAuth-based and natively support OIDC, which means you can easily achieve workload identity federation. In contrast, AWS uses SigV2 and SigV4, with SigV4 support available in GCP but not in Azure. Azure does not support the AWS SigV4 exchange process like Google Cloud does. This means that you can authenticate AWS resources to access GCP without any issues, but you can't authenticate AWS resources to access Azure. On the other hand, AWS supports OIDC, allowing you to authenticate Azure, GCP, or other services like GitLab to access AWS resources, such as S3.
+
+You can also create Kubernetes Workload Identity Federation for cross-cluster identity federation trust between Kubernetes service accounts running in AWS EKS, Azure AKS, and Google GKE. This federation trust allows a Kubernetes service account in any of the three clusters to access data stored across all three cloud storage services (S3, Azure Storage, and Google Cloud Storage).
+
+![image](/img/oidc2.png)
 
 
