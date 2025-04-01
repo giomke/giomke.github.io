@@ -25,7 +25,7 @@ The problem persists for two main reasons. First, not all services support 2FA, 
 
 So, where do we stand today, and what are better ways to authenticate ourselves?
 
-![image](/img/webauthn)
+![image](/img/webauthn.png)
 
 
 With the help of Trusted Platform Module (TPM), we can securely store our secrets and leverage FIDO2 and WebAuthn to use passkeys and passwordless authentication. These methods are phishing-resistant, more secure, and offer a much more comfortable experience in many aspects. Once we authenticate and identify ourselves, we can use our Identity Provider (IdP) as a single sign-on (SSO) solution through protocols like OIDC or SAML 2.0. This provides a high-level overview of modern authentication, in my view.
