@@ -121,3 +121,16 @@ You can also create Kubernetes Workload Identity Federation for cross-cluster id
 
 # Conclusion
 As you can see, we can easily achieve passwordless, seamless authentication for both humans and workloads. To do this, we need a centralized identity provider with strong authentication methods like FIDO for users and OIDC for workload authentication. In this setup, we no longer have to worry about credential rotations, password sprawl, or secret management. If you're not yet using FIDO2 and Workload Identity, now is the time to start.
+
+# References
+
+- [What is OAuth and OpenID Connect?](https://www.youtube.com/playlist?list=PLshTZo9V1-aEUg2S84KlisJBAyMEoEZ45)
+- [Cross cloud workload identity research and workshops](https://github.com/pumasecurity/nymeria/tree/main)
+- [SEC02-BP04 Rely on a centralized identity provider](https://docs.aws.amazon.com/wellarchitected/2022-03-31/framework/sec_identities_identity_provider.html#:~:text=For%20workforce%20identities%2C%20rely%20on%20an%20identity%20provider,managing%2C%20and%20revoking%20access%20from%20a%20single%20location.)
+- [Supported configurations for using passkeys and security keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_fido_supported_configurations.html)
+- [Available MFA types for IAM Identity Center](https://docs.aws.amazon.com/singlesignon/latest/userguide/mfa-types.html)
+- [Microsoft Entra identity management and access management for AWS](https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/aws/aws-azure-ad-security)
+- [Microsoft Entra SSO integration with AWS Single-Account Access](https://learn.microsoft.com/en-us/entra/identity/saas-apps/amazon-web-service-tutorial)
+- [Windows Hello for Business authentication](https://learn.microsoft.com/en-us/windows/security/identity-protection/hello-for-business/how-it-works-authentication)
+
+
