@@ -4,7 +4,7 @@ date: 2025-04-01T08:12:04+00:00
 tags: ["OIDC","FIDO2","WebAuthN","Identity","Federation","SAML2","WIF","passkey","passwordless","authentication"]
 description: "Avoid using AWS IAM user access keys, Azure Service Principal client IDs/secrets, or Google Cloud Service Account JSON Web Tokens (JWTs)."
 cover:
-    image: "/img/cover.png"
+    image: "https://giomke.github.io/posts/authn/img/cover.png"
     alt: "OIDC in the Cloud"
     relative: true
     hidden: false
