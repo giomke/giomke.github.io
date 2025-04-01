@@ -11,3 +11,4 @@ cover:
     hidden: true # only hide on current single page
 ---
 # Introduction
+I’ve noticed that many people in our field, even in 2025, still authenticate themselves and machines using old-fashioned way, such as passwords or long-term credentials. This short blog post takes elements from various resources to emphasize the importance of short-lived credentials for both humans and machines. The main focus of this blog is to promote the use of FIDO for user authentication and OIDC for machine authentication to avoid relying on long-term credentials.
