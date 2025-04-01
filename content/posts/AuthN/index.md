@@ -6,7 +6,7 @@ description: "Avoid using AWS IAM user access keys, Azure Service Principal clie
 cover:
     image: "https://giomke.github.io/posts/authn/img/cover.png"
     alt: "OIDC in the Cloud"
-    relative: true
+    relative: false
     hidden: false
     responsiveImages: true
 ---
