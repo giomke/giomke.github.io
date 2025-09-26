@@ -44,6 +44,7 @@ You can manually retrieve the temporary role credentials from inside a container
 curl 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
 ```
 This token and the role credentials are added to the agent's internal cache. The agent populates the environment variable AWS_CONTAINER_CREDENTIALS_RELATIVE_URI in the container with the URI of the credential ID (for example, /v2/credentials/12345678-90ab-cdef-1234-567890abcdef).
+
 ![image](/img/aws_webhook.png)
 
 The exfiltrated token can then be stored in environment variables and used with the AWS CLI to interact with the compromised cloud environment.
