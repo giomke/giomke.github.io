@@ -1,7 +1,7 @@
 baseURL: "https://giomke.github.io/"
 title: Giomke's blog
 copyright: "© giomke"
-paginate: 5
+pagination.pagerSize: 5
 theme: [PaperMod]
 
 enableInlineShortcodes: true
