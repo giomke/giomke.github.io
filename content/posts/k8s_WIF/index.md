@@ -4,7 +4,7 @@ date: 2026-08-04T09:14:00+04:00
 tags: ["Workload Identity Federation", "OIDC", "AWS", "Azure", "Kubernetes", "Minikube", "JWT", "Cloud Security"]
 description: "A deep dive into Workload Identity Federation (WIF) and OIDC. Learn how to manually build a custom OIDC provider and federate an on-premises Minikube workload pod to AWS and Azure."
 cover:
-    image: "posts/k8s_WIF/img/cover.png"
+    image: "posts/k8s_wif/img/cover.png"
     alt: "Demystifying Workload Identity Federation: From Custom OIDC to AWS and Azure"
     relative: false
     hidden: false
