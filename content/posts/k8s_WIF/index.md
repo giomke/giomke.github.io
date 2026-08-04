@@ -57,7 +57,7 @@ with open("oidc-token.jwt", "w") as out_file:
 
 Now, let's print our JWT and check if it is valid on jwt.io, where we can verify it by passing our token and public key.
 
-< jwt.io.png >
+![image](/img/jwt.io.png)
 
 As you can see, our JWT token is valid.
 
@@ -216,9 +216,9 @@ find . -type f -exec sed -i 's|https://your-domain.com|https://39b6e51d1f0bb8.lh
 ```
 This command performs a bulk find-and-replace across all files in our project directory and its subdirectories. It uses find to locate every file and securely passes them to sed, which executes an in-place replacement. It swaps our initial placeholder ([https://your-domain.com](#)) with the live, publicly accessible URL provided by our SSH tunnel ([https://39b6e51d1f0bb8.lhr.life](#)), ensuring our OIDC discovery documents and JWT payload correctly point to the active server.
 
-<web_index>
+![image](/img/web_index.png)
 
-<well-known>
+![image](/img/well-known.png)
 
 ## AWS Identity providers
 1. Register the Identity Provider in AWS IAM
@@ -277,7 +277,7 @@ export AWS_ROLE_ARN="arn:aws:iam::275956877278:role/OIDC_S3_ReadOnly_Role"
 ```
 Instead of making manual API calls to the AWS Security Token Service (STS) to exchange our token for temporary credentials, we can take advantage of the AWS CLI's native support for web identity federation. By exporting these two environment variables, we instruct the AWS tools to automatically look at our generated oidc-token.jwt file and attempt to assume the OIDC_S3_ReadOnly_Role. The AWS CLI will seamlessly handle the token exchange process in the background for any subsequent commands we run.
 
-<sts.png>
+![image](/img/sts.png)
 
 ## Azure Federated credentials
 Now that we have successfully demonstrated how to assume an AWS IAM role using our custom OIDC identity provider, let's explore how to achieve the exact same mechanism in Microsoft Azure. Azure handles this via "Workload Identity Federation." Instead of an IAM Role, we will create a User-Assigned Managed Identity, grant it read-only permissions, and then attach a Federated Identity Credential. This credential acts like our AWS Trust Policy: it tells Azure to trust our custom OIDC issuer and only grant access if the token's subject and audience exactly match our predefined strict criteria.
@@ -335,7 +335,7 @@ az login --service-principal \
 ```
 Finally, we put our token to use! We extract the Client ID of our Managed Identity and the Azure Tenant ID. Then, we use the az login command with the --federated-token flag, reading our locally signed oidc-token.jwt file. Azure will reach out to our custom OIDC discovery URL, validate the RSA signature using our hosted public key, verify the claims, and successfully log us into the Azure CLI with read-only permissions.
 
-<azure.png>
+![image](/img/azure.png)
 
 ### App Registrations vs. Managed Identities for OIDC
 
@@ -439,9 +439,12 @@ aws sts get-caller-identity
 ```
 To validate our entire pipeline, we open an interactive shell inside our running Pod and execute aws sts get-caller-identity. Because the environment variables are set, the AWS CLI automatically reads the projected Kubernetes Service Account token and federates with AWS STS. If configured correctly, this command will return a JSON object confirming that your Pod has successfully assumed the OIDC_Minikube_S3_ReadOnly_Role!
 
-<minikube>
+![image](/img/minikube.png)
 
 ## Conclusion
+
+![image](/img/overview.png)
+
 In this blog post, we tackled the "Level 3" difficulty of Workload Identity Federation, moving from the foundational concepts of OIDC to successfully federating an on-premises Minikube workload to both AWS and Azure. By manually creating our own OIDC provider, generating JWTs with Python, and setting up the discovery endpoints (jwks.json and openid-configuration), we gained a deep, under-the-hood understanding of how cloud providers establish trust and verify external identities.
 
 > **IMPORTANT SECURITY WARNING: STRICTLY FOR DEMONSTRATION PURPOSES**
